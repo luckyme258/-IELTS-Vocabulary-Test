@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>简易答题程序</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    #question {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #progress {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    #options {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .option-button {
+      padding: 10px;
+      margin-bottom: 10px;
+      transition: background-color 0.15s ease;
+    }
+
+    .option-button.disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .option-button.selected,
+    .option-button.correct {
+      background-color: lightgreen;
+    }
+
+    .option-button.wrong {
+      background-color: lightcoral;
+    }
+
+    #success-rate,
+    #wrong-answers,
+    #restart-button {
+      text-align: center;
+      margin-top: 20px;
+      display: none;
+    }
+
+    #wrong-answers ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>答题</h1>
+  <div id="progress"></div>
+  <p id="question"></p>
+  <div id="options"></div>
+  <p id="success-rate"></p>
+  <div id="wrong-answers"></div>
+  <button id="restart-button">重新开始</button>
+
+  <script>
+    let words = [
+ 
+
+{ word: "emperor", meaning: "n. 皇帝" },
+{ word: "exact", meaning: "adj. 准确的" },
+{ word: "traditional", meaning: "adj. 传统的" },
+{ word: "lack", meaning: "vt. 缺乏" },
+{ word: "pardon", meaning: "n. 原谅" },
+{ word: "regent", meaning: "n. 摄政王" },
+{ word: "burgeon", meaning: "vt. 萌芽" },
+{ word: "argue", meaning: "vi. 争论" },
+{ word: "barely", meaning: "adv. 仅仅" },
+{ word: "methane", meaning: "n. [有化] 甲烷" },
+{ word: "hierarchy", meaning: "n. 层级" },
+{ word: "guidance", meaning: "n. 指导" },
+{ word: "easy-going", meaning: "adj. 随和的" },
+{ word: "electrical", meaning: "adj. 有关电的" },
+{ word: "electronic", meaning: "adj. 电子的" },
+{ word: "roll film", meaning: "na. 摄影胶卷" },
+{ word: "philosophy", meaning: "n. 哲学" },
+{ word: "chronic", meaning: "adj. 慢性的" },
+{ word: "desirable", meaning: "adj.令人满意的" },
+{ word: "consortium", meaning: "n. 财团" },
+{ word: "buckle", meaning: "n. 皮带扣" },
+{ word: "curry", meaning: "n. 咖哩粉" },
+{ word: "subliminal", meaning: "n. 潜意识" },
+{ word: "chamber", meaning: "n. （身体或器官内的）室" },
+{ word: "frequent", meaning: "adj. 频繁的" },
+{ word: "prosperous", meaning: "adj. 繁荣的" },
+{ word: "purpose", meaning: "n. 目的" },
+{ word: "variety", meaning: "n. 多样性" },
+{ word: "immigration", meaning: "n. 外来移民" },
+{ word: "natural", meaning: "adj. 自然的" },
+{ word: "bet", meaning: "n. 打赌" },
+{ word: "consumer", meaning: "n. 消费者" },
+{ word: "physician", meaning: "n. [医] 医师" },
+{ word: "equal", meaning: "n. 对手" },
+{ word: "resort", meaning: "n. 凭借" },
+{ word: "leadership", meaning: "n. 领导能力" },
+{ word: "equity", meaning: "n. 公平" },
+{ word: "excavate", meaning: "vt. 挖掘" },
+{ word: "nuclear", meaning: "adj. 原子能的" },
+{ word: "mutual", meaning: "adj. 共同的；相互的" },
+{ word: "hectare", meaning: "n. 公顷" },
+{ word: "density", meaning: "n. 密度" },
+{ word: "massive", meaning: "adj. 大量的" },
+{ word: "congratulate", meaning: "vt. 祝贺" },
+{ word: "companion", meaning: "n. 同伴" },
+{ word: "rig", meaning: "n. 装备" },
+{ word: "input", meaning: "n. 投入" },
+{ word: "merely", meaning: "adv. 仅仅" },
+{ word: "impart", meaning: "vt. 给予（尤指抽象事物）" },
+{ word: "forfeit", meaning: "n. 罚金" },
+{ word: "calorie", meaning: "n. 卡路里" },
+{ word: "van", meaning: "n. 先锋" },
+{ word: "ventilation", meaning: "n. 通风设备" },
+{ word: "eternal", meaning: "adj. 永恒的" },
+{ word: "invasion", meaning: "n. 入侵" },
+{ word: "celebrate", meaning: "vt. 庆祝" },
+{ word: "inspiring", meaning: "v. 鼓舞" },
+{ word: "attendance", meaning: "n. 出席" },
+{ word: "optional", meaning: "adj. 可选择的" },
+{ word: "enable", meaning: "vt. 使能够" },
+{ word: "departmental", meaning: "adj. 部门的" },
+{ word: "heal", meaning: "vt. 治愈" },
+{ word: "dismantle", meaning: "vt. 拆除" },
+{ word: "wage", meaning: "n. 工资" },
+{ word: "landscape", meaning: "n. 风景" },
+{ word: "emotion", meaning: "n. 情感" },
+{ word: "commonwealth", meaning: "n. 联邦" },
+{ word: "newsletter", meaning: "n. 时事通讯" },
+{ word: "periodical", meaning: "n. 期刊" },
+{ word: "receptionist", meaning: "n. 接待员" },
+{ word: "security", meaning: "n. 安全" },
+{ word: "clip", meaning: "vi. 修剪" },
+{ word: "apace", meaning: "adv. 飞快地" },
+{ word: "yield", meaning: "n. 产量" },
+{ word: "fair", meaning: "n. 展览会，白皙的" },
+
+    ];
+
+    let currentQuestionIndex = 0;
+    let correctAnswers = 0;
+    let wrongAnswers = [];
+
+    function generateNextQuestion() {
+      if (currentQuestionIndex < words.length) {
+        const questionWord = words[currentQuestionIndex].word;
+        const questionMeaning = words[currentQuestionIndex].meaning;
+
+        const optionsList = [];
+        optionsList.push(questionMeaning);
+
+        for (let i = 0; i <3 ; i++) {
+          let randomIndex;
+          do {
+            randomIndex = Math.floor(Math.random() * words.length);
+          } while (randomIndex === currentQuestionIndex || optionsList.includes(words[randomIndex].meaning));
+
+          optionsList.push(words[randomIndex].meaning);
+        }
+
+        optionsList.sort(() => Math.random() - 0.5);
+
+        document.getElementById('question').textContent = questionWord;
+        const optionsContainer = document.getElementById('options');
+        optionsContainer.innerHTML = '';
+        for (let i = 0; i < optionsList.length; i++) {
+          const optionButton = document.createElement('button');
+          optionButton.className = 'option-button';
+          optionButton.textContent = optionsList[i];
+          optionButton.addEventListener('click', selectOptionAndProceed);
+          optionsContainer.appendChild(optionButton);
+        }
+
+        const progressElement = document.getElementById('progress');
+        progressElement.textContent = `正在答题：${currentQuestionIndex + 1} / ${words.length}`;
+      } else {
+        endQuiz();
+      }
+    }
+
+    function selectOptionAndProceed(e) {
+      const selectedOption = document.querySelector('.option-button.selected');
+      if (!selectedOption) {
+        e.target.classList.add('selected');
+        const selectedOptionText = e.target.textContent;
+        checkAnswerAndProceed(selectedOptionText);
+      }
+    }
+
+    function checkAnswerAndProceed(selectedOptionText) {
+      const isCorrect = selectedOptionText === words[currentQuestionIndex].meaning;
+      const selectedOption = document.querySelector('.option-button.selected');
+      selectedOption.disabled = true;
+
+      if (isCorrect) {
+        selectedOption.classList.add('correct');
+        correctAnswers++;
+      } else {
+        selectedOption.classList.add('wrong');
+        wrongAnswers.push({
+          word: words[currentQuestionIndex].word,
+          meaning: words[currentQuestionIndex].meaning
+        });
+      }
+      currentQuestionIndex++;
+
+      setTimeout(generateNextQuestion, 150); // 加入延迟等待效果
+    }
+
+    function endQuiz() {
+      const successRate = (correctAnswers / words.length) * 100;
+      const successRateElement = document.getElementById('success-rate');
+      successRateElement.textContent = `成功率: ${successRate.toFixed(2)}%`;
+
+      const wrongAnswersContainer = document.getElementById('wrong-answers');
+      const wrongAnswersList = document.createElement('ul');
+      for (let i = 0; i < wrongAnswers.length; i++) {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${wrongAnswers[i].word} - ${wrongAnswers[i].meaning}`;
+        wrongAnswersList.appendChild(listItem);
+      }
+      wrongAnswersContainer.appendChild(wrongAnswersList);
+
+      successRateElement.style.display = 'block';
+      wrongAnswersContainer.style.display = 'block';
+      document.getElementById('restart-button').style.display = 'block';
+      document.querySelector('#options').style.display = 'none';
+    }
+
+    document.getElementById('restart-button').addEventListener('click', restartQuiz);
+
+    function restartQuiz() {
+      currentQuestionIndex = 0;
+      correctAnswers = 0;
+      wrongAnswers = [];
+      document.getElementById('question').textContent = '';
+      document.getElementById('success-rate').textContent = '';
+      const wrongAnswersContainer = document.getElementById('wrong-answers');
+      wrongAnswersContainer.innerHTML = '';
+      wrongAnswersContainer.style.display = 'none';
+      document.getElementById('restart-button').style.display = 'none';
+      document.querySelector('#options').style.display = 'flex';
+      generateNextQuestion();
+    }
+
+    generateNextQuestion();
+  </script>
+</body>
+</html>
